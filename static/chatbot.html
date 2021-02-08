@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+ <html lang = "en">
+     <head>
+         <meta charset = "UTF-8" />
+         <meta name = "viewport" content= "width = device-width, initial-scale = 1.0" />
+         <title>Chat</title>
+     </head>
+    <body>
+        <center>
+        <p id="chatLog">CHAT WITH THE CHATBOT<br></p>
+        <input type = "text" id = "ques" onkeydown = "if (event.keyCode == 13) {chat()}"> <br> <br>
+        <button type="button" onclick = "logout()">Log Out</button>
+        </center>
+        <script>  
+        function logout() {
+            window.location.href = "index.html"
+        }         
+           function chat() {    
+            console.log("its working")  
+            //    const test = document.getElementById("ques").value 
+            //    document.getElementById("chatLog").innerHTML += test + "<br>"
+            const q = document.getElementById("ques").value
+            document.getElementById("ques").value = ""
+            document.getElementById("chatLog").innerHTML += q + "<br>"
+            // console.log("its working")     
+               const result = await fetch("/api/chatbot", {
+                   method : POST,
+                   headers : {
+                       'Content-Type' : 'application/json'
+                   },
+                   body : JSON.stringify({
+                       ques
+                   })
+               })
+               .then(res => res.json())          
+				if (result.status === 'ok') {
+					const reply = result.data
+                    
+                    // document.getElementById("chatLog").innerHTML += q + "<br>";
+                    document.getElementById("chatLog").innerHTML += reply + "<br>";      
+
+                 } else {
+                    document.getElementById("chatLog").innerHTML += "IDK..." + "<br>";
+				}
+        }
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
