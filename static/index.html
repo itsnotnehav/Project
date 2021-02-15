@@ -23,9 +23,10 @@
             form.addEventListener('submit', registerUser)
             async function registerUser(event) {
                 event.preventDefault()
-                const username = document.getElementById('username').value
-                const password = document.getElementById('password').value
-                const result = await fetch('/api/register', {
+                const username = document.getElementById('username').value // username entered by the user
+                const password = document.getElementById('password').value // password entered by the user
+                const result = await fetch('/api/register', { // fetch sends the username and password to "/api/register" in server and
+                //stores the response from the server in result variable in the json format.
                     method : 'POST',
                     headers : {
                         'Content-Type' : 'application/json'
@@ -36,9 +37,9 @@
                     })
                 }).then((res) => res.json())
 
-                if(result.status === 'ok') {
+                if(result.status === 'ok') { // sign up success
                     window.location.href = "login.html"
-                } else {
+                } else { // can't sign up
                     alert(result.error)
                 }
                 console.log(result)
