@@ -23,10 +23,11 @@
 
 			async function login(event) {
 				event.preventDefault()
-				const username = document.getElementById('username').value
-				const password = document.getElementById('password').value
+				const username = document.getElementById('username').value // username entered by user
+				const password = document.getElementById('password').value // password entered by user
 
-				const result = await fetch('/api/login', {
+				const result = await fetch('/api/login', { // sends the username and password to "/api/login" in server and
+				// stores the response from the server in result variable
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json'
@@ -35,14 +36,14 @@
 						username,
 						password
 					})
-				}).then((res) => res.json())
+				}).then((res) => res.json()) // converting the response from the server; to json
 
-				if (result.status === 'ok') {
+				if (result.status === 'ok') { // login successful
 					console.log('Got the token: ', result.data)
 					localStorage.setItem('token', result.data)
 					window.location.href = "chatbot.html"
-				} else {
-					alert(result.error)
+				} else { // can't login
+					alert(result.error) 
 				}
 			}
 		</script>
