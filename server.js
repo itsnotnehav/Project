@@ -3,11 +3,13 @@ const path = require('path')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const User = require('./model/user')
-const Diag = require('./model/chat')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { assert } = require('console')
+const { request } = require('http')
+const { response } = require('express')
 const JWT_SECRET = 'sjflkfhnswklhilwhalefnakfnkjghkjugh476@$#%^&*&&*'
+const mongodb = require('mongodb')
 
 mongoose.connect('mongodb://localhost:27017/chatbot_app_db', {
     useNewUrlParser : true,
@@ -16,22 +18,37 @@ mongoose.connect('mongodb://localhost:27017/chatbot_app_db', {
 })
 
 const app = express()
-//app.use('/', express.static(path.join(__dirname, 'static')))
+
+const forChatbot = mongodb.MongoClient
 app.use(express.static('static'))
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended : false}))
+app.use(bodyParser.json());
+app.use(express.json());
 
-app.post('/api/chatbot', (req, res) => {
-    console.log("neha")
-    const ques = req.body.ques
-    //const outputFromDb = Diag.dialogues1.find({"ques" : ques}, {"_id" : 0, "response1" : 1})
-    const outputFromDb = await Diag.dialogues1.find({"ques" : ques})
-    const ourResp = outputFromDb.response1
-    console.log(ourResp)
-    if(! outputFromDb) {
-        return res.json({status : 'error', error : 'Idk'})
-    } else {
-        return res.json({status : 'ok', data : ourResp})
-    }
+
+app.post('/api', (req, res) => {
+    forChatbot.connect("mongodb://localhost:27017/", async function(err, db) {
+        if (err) throw err
+        const ques1 = req.body
+        console.log(ques1)
+        console.log("Entering into the database");
+        const dbo = db.db("chatbot_app_db")
+        const result = await dbo.collection("dialogues").find(ques1).toArray()
+        console.log("Result from database")
+        console.log(result)
+
+        if (result.length === 0 ) {
+            return res.json({status : 'error', error : "Sorry, I don't understand"})
+        } else {
+            console.log(result[0].response)
+            const reply = result[0].response 
+            res.json({
+                status : 'okay',
+                ans : reply
+            })
+        }       
+    })
 })
 
 app.post('/api/login', async (req, res) => {
@@ -70,7 +87,7 @@ app.post('/api/register', async (req, res) => {
         })
         console.log('User created Successfully : ', response)        
 
-    } catch(error) {
+    } catch(error) {     
         if (error.code === 11000) {
             return res.json({status : 'error', error : 'Username already in use'})
         }
