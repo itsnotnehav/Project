@@ -27,27 +27,58 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 
+app.post('/api/chatHistory', (req, res) => {
+    forChatbot.connect("mongodb://localhost:27017/", async function(err, db) {
+        if (err) throw err
+    const nameCollection = req.body.usern // Got current username from chatbot.html 
+    //console.log(nameCollection)
+    //console.log("Entering into the database from chatHistory api")
+    const dbo = db.db("chatbot_app_db")
+    const history = await dbo.collection(nameCollection).find().toArray() //Returns all the saved chats in an array
+    //console.log("Chat History from /api/chatHistory")
+    //console.log(history)
+    res.json({ //response from backend to frontend.
+        status : 'okay',
+        chathis : history //array of documents holding all the chats
+     })
+    });
+
+})
+
 app.post('/api', (req, res) => {
     forChatbot.connect("mongodb://localhost:27017/", async function(err, db) {
         if (err) throw err
-        const ques1 = req.body //request from frontend (message entered by user)
-        console.log(ques1)
-        console.log("Entering into the database");
+        //console.log(req.body)
+        const collectionName = req.body.usern
+        const userMsg = req.body.ques //request from frontend (message entered by user)
+        //console.log(userMsg)
+        //console.log("Entering into the database from api chatbot");
         const dbo = db.db("chatbot_app_db")
-        const result = await dbo.collection("dialogues").find(ques1).toArray() //searching for the user entered message in database.
-        console.log("Result from database")
-        console.log(result) //resultant record in an array. If the user entered message is not in the database, result will be an empty array. 
-
+        const result = await dbo.collection("dialogues").find({ ques : userMsg }).toArray() //searching for the user entered message in database.
+        //console.log("Result from database from chatbot api")
+        //console.log(result) //resultant record in an array. If the user entered message is not in the database, result will be an empty array. 
+        var reply = ""
         if (result.length === 0 ) { //User entered message not found in database.
-            return res.json({status : 'error', error : "Sorry, I don't understand"})
+            //return res.json({status : 'error', error : "Sorry, I don't understand"})
+            reply = "Sorry, I don't understand."
+
         } else { //User entered message found in database.
-            console.log(result[0].response)
-            const reply = result[0].response //reply message of the chatbot.
-            res.json({ //response from backend to frontend.
-                status : 'okay',
-                ans : reply
-            })
-        }       
+           // console.log(result[0].response)
+           reply = result[0].response //reply message of the chatbot.
+        }
+        res.json({ //response from backend to frontend.
+              status : 'okay',
+              ans : reply
+           })
+
+           //entering the conversations into respective collection.
+
+           const conversation = { user : userMsg, bot : reply } 
+           dbo.collection(collectionName).insertOne(conversation, function(err, res) {
+               if (err) throw err;
+                //console.log("1 document inserted");
+           });
+               
     })
 })
 
