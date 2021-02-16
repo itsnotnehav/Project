@@ -7,19 +7,43 @@
         <p id="chatLog">CHAT WITH THE CHATBOT<br></p>
         <input type = "text" id = "ques" name = "ques" onkeydown = "if (event.keyCode == 13) {chat()}"> <br> <br> 
         <!-- When pressed enter, function chat will be called. -->
-        <button type="button" onclick = "logout()">Log Out</button>
+        <button type = "button" onclick = "loadChatHistory()">Load Chat History</button>
+        <button type = "button" onclick = "logout()">Log Out</button>
         </center>
         <script> 
+            
+            async function loadChatHistory() {
+                const usern = localStorage.getItem('un') // getting the username from login.html (through local storage)
+                const toApi = {usern} // which we want to send to the backend.
+                const options = {
+                    method : 'POST', 
+                    headers : {
+                        'Content-Type' : 'application/json'
+                    },
+                body : JSON.stringify(toApi)
+                };
+                const respo = await fetch('/api/chatHistory', options)  // sends the username to "/api/chatHistory in server
+                // and holds response in respo variable"         
+                const json = await respo.json() // converts the response from server; into json. 
+                if (json.status === 'okay') { // Displaying the chat history.
+                    var history = json.chathis
+                    for (var i = 0; i < history.length; i++) {
+                        document.getElementById("chatLog").innerHTML += usern + ' : ' + history[i].user + '<br>' + 'ChatBot : ' + history[i].bot + '<br>'
+                    }
+                }
+
+            }
 
             function logout() {
             window.location.href = "index.html"
             }
 
             async function chat() {
-                const ques = document.getElementById("ques").value; // message entered by the user.
+                const usern = localStorage.getItem('un') //current username.
+                const ques = document.getElementById("ques").value // message entered by the user.
                 document.getElementById("ques").value = "" // After hitting enter, the message typed earlier disappears.
-                document.getElementById("chatLog").innerHTML += ques + "<br>" // Displaying the message entered by the user. 
-                const data = {ques}; // which we want to send to the backend.
+                document.getElementById("chatLog").innerHTML += usern + ' : ' + ques + "<br>" // Displaying the message entered by the user. 
+                const data = {ques, usern}; // which we want to send to the backend.
                 const options = {
                     method : 'POST', 
                     headers : {
@@ -31,9 +55,7 @@
                 // in the form of json and stores the response from the server in respo variable.
                 const json = await respo.json() // converts the response from server; into json. 
                 if (json.status === 'okay') { // Displaying the reply of the chatbot.
-                document.getElementById("chatLog").innerHTML += json.ans + "<br>"
-            } else {
-                document.getElementById("chatLog").innerHTML += json.error + "<br>"
+                document.getElementById("chatLog").innerHTML += 'Bot : ' + json.ans + "<br>"
             }
         }
         </script> 
