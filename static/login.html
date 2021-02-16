@@ -41,10 +41,11 @@
 				if (result.status === 'ok') { // login successful
 					console.log('Got the token: ', result.data)
 					localStorage.setItem('token', result.data)
+					localStorage.setItem('un', username) 
 					window.location.href = "chatbot.html"
 				} else { // can't login
 					alert(result.error) 
-				}
+			} 
 			}
 		</script>
 	</body>
