@@ -13,7 +13,7 @@
         <script> 
             
             async function loadChatHistory() {
-                const usern = localStorage.getItem('un') // getting the username from login.html (through local storage)
+                const usern = localStorage.getItem('un') // getting the username from index.html (through local storage)
                 const toApi = {usern} // which we want to send to the backend.
                 const options = {
                     method : 'POST', 
