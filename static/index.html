@@ -1,49 +1,131 @@
 <!DOCTYPE html>
-<html lang = "en">
-    <head>
-        <meta charset = "UTF-8" />
-        <meta name = "viewport" content = "width = device-width, initial-scale = 1.0" />
-        <title>Document</title>
-    </head>
-    
-    <body>
-        <center>
-        <h2>Want to chat with the chatbot? Then create an account!</h2>
-        <p>Sign Up</p>
-        <form id = "reg-form">
-            <input type = "text" autocomplete = "off" id = "username" placeholder = "Username" /> <br> <br>
-            <input type = "password" autocomplete = "off" id = "password" placeholder = "Password" /> <br> <br>
-            <input type = "submit" value = "Sign Up" />
-            <p>Already have an account?</p>
-            <a href="login.html">Log In</a>
-        </form>
-        </center>
-        <script>
-            const form = document.getElementById('reg-form')
-            form.addEventListener('submit', registerUser)
-            async function registerUser(event) {
-                event.preventDefault()
-                const username = document.getElementById('username').value // username entered by the user
-                const password = document.getElementById('password').value // password entered by the user
-                const result = await fetch('/api/register', { // fetch sends the username and password to "/api/register" in server and
-                //stores the response from the server in result variable in the json format.
-                    method : 'POST',
-                    headers : {
-                        'Content-Type' : 'application/json'
-                    },
-                    body : JSON.stringify ({
-                        username,
-                        password
-                    })
-                }).then((res) => res.json())
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <title>Sign Up</title>
+</head>
+<body>
+  <div class="container">
+    <input type="checkbox" id="flip">
+    <div class="cover">
+      <div class="front">
+        <img src="MyJournal.png" alt="">
+        <div class="text">
+          <span class="text-1">Every new friend is a <br> new adventure</span>
+          <span class="text-2">Let's get connected</span>
+        </div>
+      </div>
+      <div class="back">
+        <img class="backImg" src="MyJournal.png" alt="">
+        <div class="text">
+          <span class="text-1">Complete miles of journey <br> with one step</span>
+          <span class="text-2">Let's get started</span>
+        </div>
+      </div>
+    </div>
+    <div class="forms">
+      <div class="form-content">
+        <div class="login-form">
+          <div class="title">Login</div>
+          <form id="login-form">
+            <div class="input-boxes">
+              <div class="input-box">
+                <i class="fas fa-envelope"></i>
+                <input type="text" id="username" placeholder="Enter your email" required>
+              </div>
+              <div class="input-box">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Enter your password" required>
+              </div>
+              <div class="button input-box">
+                <input type="submit" value="Log in">
+              </div>
+              <div class="text sign-up-text">Don't have an account? <label for="flip">Sign up now</label></div>
+            </div>
+          </form>
+        </div>
+        <div class="signup-form">
+          <div class="title">Signup</div>
+          <form id="reg-form">
+            <div class="input-boxes">
+              <div class="input-box">
+                <i class="fas fa-user"></i>
+                <input type="text" id="reg-username" placeholder="Enter your name" required>
+              </div>
+              <div class="input-box">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="reg-password" placeholder="Enter your password" required>
+              </div>
+              <div class="button input-box">
+                <input type="submit" value="Sign Up">
+              </div>
+              <div class="text sign-up-text">Already have an account? <label for="flip">Login now</label></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                if(result.status === 'ok') { // sign up success
-                    window.location.href = "login.html"
-                } else { // can't sign up
-                    alert(result.error)
-                }
-                console.log(result)
-            }
-        </script>
-    </body>
+  <script>
+     const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', login);
+
+    async function login(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const result = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      }).then((res) => res.json());
+
+      if (result.status === 'ok') {
+        console.log('Got the token: ', result.data);
+        localStorage.setItem('token', result.data);
+        localStorage.setItem('un', username);
+        window.location.href = "chatbot.html";
+      } else {
+        alert(result.error);
+      }
+    }
+
+    const form = document.getElementById('reg-form');
+    form.addEventListener('submit', registerUser);
+
+    async function registerUser(event) {
+      event.preventDefault();
+      const username = document.getElementById('reg-username').value; // username entered by the user
+      const password = document.getElementById('reg-password').value; // password entered by the user
+
+      const result = await fetch('/api/register', { // fetch sends the username and password to "/api/register" in server and
+        //stores the response from the server in result variable in the json format.
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      }).then((res) => res.json());
+
+      if (result.status === 'ok') { // sign up success
+        window.location.href = "index.html";
+      } else { // can't sign up
+        alert(result.error);
+      }
+      console.log(result);
+    }
+  </script>
+</body>
 </html>

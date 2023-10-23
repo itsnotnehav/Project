@@ -11,11 +11,22 @@ const { response } = require('express')
 const JWT_SECRET = 'sjflkfhnswklhilwhalefnakfnkjghkjugh476@$#%^&*&&*'
 const mongodb = require('mongodb')
 
-mongoose.connect('mongodb://localhost:27017/chatbot_app_db', {
+// I made this change (localhost to 0.0.0.0 because - https://stackoverflow.com/questions/46523321/mongoerror-connect-econnrefused-127-0-0-127017)
+mongoose.connect('mongodb://0.0.0.0:27017/chatbot_app_db', {
     useNewUrlParser : true,
     useUnifiedTopology : true,
     useCreateIndex : true
 })
+
+const db = mongoose.connection;
+
+db.on('error', (error) => {
+    console.error('MongoDB connection error:', error);
+});
+
+db.once('open', () => {
+    console.log('Connected to MongoDB');
+});
 
 const app = express()
 
@@ -28,7 +39,7 @@ app.use(express.json());
 
 
 app.post('/api/chatHistory', (req, res) => {
-    forChatbot.connect("mongodb://localhost:27017/", async function(err, db) {
+    forChatbot.connect("mongodb://0.0.0.0:27017/", async function(err, db) {
         if (err) throw err
     const nameCollection = req.body.usern // Got current username from chatbot.html 
     //console.log(nameCollection)
@@ -46,7 +57,7 @@ app.post('/api/chatHistory', (req, res) => {
 })
 
 app.post('/api', (req, res) => {
-    forChatbot.connect("mongodb://localhost:27017/", async function(err, db) {
+    forChatbot.connect("mongodb://0.0.0.0:27017/", async function(err, db) {
         if (err) throw err
         //console.log(req.body)
         const collectionName = req.body.usern
@@ -127,5 +138,5 @@ app.post('/api/register', async (req, res) => {
     res.json({status : 'ok'})
 })
 app.listen(9999, () => {
-    console.log('Server up at 9999')
+    console.log('Server up at 9999') // if you want to hit the website just do : localhost:9999
 }) 
