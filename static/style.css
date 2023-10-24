@@ -33,6 +33,7 @@ body{
   transition: all 1s ease;
   transform-origin: left;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 .container #flip:checked ~ .cover{
   transform: rotateY(-180deg);
@@ -47,22 +48,22 @@ body{
 }
 .cover .back{
   transform: rotateY(180deg);
-  backface-visibility: hidden;
 }
-.container .cover::before,
-.container .cover::after{
+.container .cover .front::before,
+.container .cover .front::after,
+.container .cover .back::before,
+.container .cover .back::after {
   content: '';
   position: absolute;
   height: 100%;
   width: 100%;
-  background: #7d2ae8;
-  opacity: 0.5;
+  background: #0c0c0c;
+  opacity: 0.3; /* Transparency of front and back images */
   z-index: 12;
 }
 .container .cover::after{
   opacity: 0.3;
   transform: rotateY(180deg);
-  backface-visibility: hidden;
 }
 .container .cover img{
   position: absolute;
@@ -83,10 +84,11 @@ body{
 }
 .cover .text .text-1,
 .cover .text .text-2{
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
-  color: #fff;
+  color: #faf4f4; /* Text color for both sides */
   text-align: center;
+  font-family: "Lucida Handwriting", cursive;
 }
 .cover .text .text-2{
   font-size: 15px;

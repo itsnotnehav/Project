@@ -61,34 +61,23 @@ app.post('/api', (req, res) => {
         if (err) throw err
         //console.log(req.body)
         const collectionName = req.body.usern
-        const userMsg = req.body.ques //request from frontend (message entered by user)
-        //console.log(userMsg)
-        //console.log("Entering into the database from api chatbot");
+        const userMsg = req.body.journalEntry //request from frontend (message entered by user)
+        const title = req.body.journalTitle
+        const timestamp = req.body.currentTimestampMilliseconds
+
         const dbo = db.db("chatbot_app_db")
-        const result = await dbo.collection("dialogues").find({ ques : userMsg }).toArray() //searching for the user entered message in database.
-        //console.log("Result from database from chatbot api")
-        //console.log(result) //resultant record in an array. If the user entered message is not in the database, result will be an empty array. 
-        var reply = ""
-        if (result.length === 0 ) { //User entered message not found in database.
-            //return res.json({status : 'error', error : "Sorry, I don't understand"})
-            reply = "Sorry, I don't understand."
 
-        } else { //User entered message found in database.
-           // console.log(result[0].response)
-           reply = result[0].response //reply message of the chatbot.
-        }
-        res.json({ //response from backend to frontend.
-              status : 'okay',
-              ans : reply
-           })
+        //saving the data into respective collection (username-collection) ex. nehavunnam
 
-           //entering the conversations into respective collection.
-
-           const conversation = { user : userMsg, bot : reply } 
-           dbo.collection(collectionName).insertOne(conversation, function(err, res) {
+        const newJournal = { title : title, entry : userMsg, time : timestamp } 
+           dbo.collection(collectionName).insertOne(newJournal, function(err, ress) {
                if (err) throw err;
-                //console.log("1 document inserted");
+               console.log("1 document inserted");
            });
+
+           res.json({
+            status : 'okay'
+        })
                
     })
 })

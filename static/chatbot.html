@@ -1,49 +1,58 @@
 <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="chatbotStyle.css"> <!-- Add this line to link your CSS file -->
         <title>Chat</title>
     </head>
     <body>
-        <center>
-        <p id="chatLog">CHAT WITH THE CHATBOT<br></p>
-        <input type = "text" id = "ques" name = "ques" onkeydown = "if (event.keyCode == 13) {chat()}"> <br> <br> 
-        <!-- When pressed enter, function chat will be called. -->
-        <button type = "button" onclick = "loadChatHistory()">Load Chat History</button>
-        <button type = "button" onclick = "logout()">Log Out</button>
-        </center>
+        <div class="center-content">
+            <h2>Enter title of your journal entry</h2>
+            <br>
+            <input type="text" id="journal-title"> <!-- Added input field -->
+            <br>
+            <textarea id="journal-entry" placeholder="Write your journal entry here..."></textarea>
+            <button type="button" onclick="chat()">Create Journal</button>
+            <!-- <button type="button" onclick="loadChatHistory()">Load Previous Journal Entries</button> -->
+            <button type="button" class="logout-button" onclick="logout()">Log Out</button>
+        </div>
+
         <script> 
             
-            async function loadChatHistory() {
-                const usern = localStorage.getItem('un') // getting the username from index.html (through local storage)
-                const toApi = {usern} // which we want to send to the backend.
-                const options = {
-                    method : 'POST', 
-                    headers : {
-                        'Content-Type' : 'application/json'
-                    },
-                body : JSON.stringify(toApi)
-                };
-                const respo = await fetch('/api/chatHistory', options)  // sends the username to "/api/chatHistory in server
-                // and holds response in respo variable"         
-                const json = await respo.json() // converts the response from server; into json. 
-                if (json.status === 'okay') { // Displaying the chat history.
-                    var history = json.chathis
-                    for (var i = 0; i < history.length; i++) {
-                        document.getElementById("chatLog").innerHTML += usern + ' : ' + history[i].user + '<br>' + 'ChatBot : ' + history[i].bot + '<br>'
-                    }
-                }
+            // async function loadChatHistory() {
+            //     const usern = localStorage.getItem('un') // getting the username from index.html (through local storage)
+            //     const toApi = {usern} // which we want to send to the backend.
+            //     const options = {
+            //         method : 'POST', 
+            //         headers : {
+            //             'Content-Type' : 'application/json'
+            //         },
+            //     body : JSON.stringify(toApi)
+            //     };
+            //     const respo = await fetch('/api/chatHistory', options)  // sends the username to "/api/chatHistory in server
+            //     // and holds response in respo variable"         
+            //     const json = await respo.json() // converts the response from server; into json. 
+            //     if (json.status === 'okay') { // Displaying the chat history.
+            //         var history = json.chathis
+            //         for (var i = 0; i < history.length; i++) {
+            //             document.getElementById("chatLog").innerHTML += usern + ' : ' + history[i].user + '<br>' + 'ChatBot : ' + history[i].bot + '<br>'
+            //         }
+            //     }
 
-            }
+            // }
 
             function logout() {
             window.location.href = "index.html"
             }
-
             async function chat() {
                 const usern = localStorage.getItem('un') //current username.
-                const ques = document.getElementById("ques").value // message entered by the user.
-                document.getElementById("ques").value = "" // After hitting enter, the message typed earlier disappears.
-                document.getElementById("chatLog").innerHTML += usern + ' : ' + ques + "<br>" // Displaying the message entered by the user. 
-                const data = {ques, usern}; // which we want to send to the backend.
+                const journalTitle = document.getElementById("journal-title").value
+                const journalEntry = document.getElementById("journal-entry").value // message entered by the user.
+                // document.getElementById("ques").value = "" // After hitting enter, the message typed earlier disappears.
+                // document.getElementById("chatLog").innerHTML += usern + ' : ' + ques + "<br>" // Displaying the message entered by the user. 
+                const timestamp = new Date().getTime();
+                const currentTimestampMilliseconds = Math.floor(timestamp / 1000);
+                const data = {journalTitle, journalEntry, currentTimestampMilliseconds, usern}; // which we want to send to the backend.
                 const options = {
                     method : 'POST', 
                     headers : {
@@ -54,8 +63,12 @@
                 const respo = await fetch('/api', options) // will send the data (message entered by the user) to '/api' in server,
                 // in the form of json and stores the response from the server in respo variable.
                 const json = await respo.json() // converts the response from server; into json. 
-                if (json.status === 'okay') { // Displaying the reply of the chatbot.
-                document.getElementById("chatLog").innerHTML += 'Bot : ' + json.ans + "<br>"
+                if (json.status === 'okay') { 
+                    //empty the textbox and title box.
+                    //maybe give a notification or an alert saying that the journal has been created and saved.
+                    alert("Journal entry successfully saved!");
+                    document.getElementById("journal-title").value = "" 
+                    document.getElementById("journal-entry").value = "" 
             }
         }
         </script> 
